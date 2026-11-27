@@ -1,0 +1,11 @@
+[
+  {
+    "shot": "rain-at-the-door/02",
+    "beat": "An hears a key turn behind her at two seconds. Keep the rain throughout the five-second take.",
+    "camera": "Portrait. Start with a locked shot.",
+    "references": [
+      {"name": "A: An at the door", "role": "Face and identity"},
+      {"name": "B: doorway light", "role": "Lighting only"}
+    ]
+  }
+]

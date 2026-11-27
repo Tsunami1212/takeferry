@@ -7,6 +7,8 @@ import math
 import re
 from pathlib import PurePosixPath
 
+from .canvases import HOST_RENDERERS, RENDERERS, ROUTES, SUBMIT_TOOLS
+
 
 class TakeError(ValueError):
     """A problem the writer or their agent can act on."""
@@ -50,14 +52,58 @@ def digest(obj):
     return hashlib.sha256(data.encode()).hexdigest()
 
 
+def validate_remote(brief):
+    remote = brief.get("remote")
+    keys(remote, ("server", "tool", "arguments", "snapshot"))
+    provider = brief["provider"]
+    server = ROUTES[provider].connector
+    if remote["server"] != server:
+        raise TakeError(f"Use the reviewed {server} MCP server for this route.")
+    tool = identifier(remote["tool"], "remote tool")
+    # Hermes can expose a native name or qualify it with its MCP server name.
+    for prefix in (f"mcp__{server}__", f"mcp_{server}_", f"{server}__"):
+        if tool.startswith(prefix):
+            tool = tool[len(prefix):]
+            break
+    if tool.startswith("mcp_"):
+        raise TakeError("The qualified tool belongs to a different MCP server.")
+    if provider in SUBMIT_TOOLS and tool not in SUBMIT_TOOLS[provider]:
+        raise TakeError("Select a video submission tool supported by this connector.")
+    for name in ("arguments", "snapshot"):
+        if not isinstance(remote[name], dict) or not remote[name]:
+            raise TakeError(f"Include the reviewed remote {name} object.")
+    snapshot = remote["snapshot"]
+    if (snapshot.get("account"), snapshot.get("team")) != (brief["account"], brief.get("team")):
+        raise TakeError("Use the observed account and team from the reviewed destination.")
+    if type(snapshot.get("video_outputs")) is not int or snapshot["video_outputs"] != 1:
+        raise TakeError("Review a graph or request with one video output per take.")
+    if len(json.dumps(remote, ensure_ascii=False, allow_nan=False)) > 128000:
+        raise TakeError("Keep the relevant tool arguments and graph snapshot under 128000 characters.")
+
+
 def validate(brief):
-    keys(brief, ("shot", "provider", "account", "canvas", "node", "model", "prompt",
+    keys(brief, ("shot", "provider", "account", "model", "prompt",
                  "duration", "ratio", "camera", "sound", "references", "cues"),
-         ("parent", "team", "resolution", "differences", "quote"))
-    for name in ("shot", "account", "canvas", "node"):
+         ("parent", "team", "resolution", "differences", "quote", "canvas", "node", "remote"))
+    provider = brief["provider"]
+    if provider not in RENDERERS:
+        raise TakeError("Choose a video route from takeferry_canvas_catalog.")
+    mode = ROUTES[provider].mode
+    for name in ("shot", "account"):
         identifier(brief[name], name)
-    if brief["provider"] not in ("libtv", "pippit"):
-        raise TakeError("Choose libtv or pippit.")
+    for name in ("canvas", "node"):
+        if name in brief or mode in ("node", "workflow"):
+            identifier(brief.get(name), name)
+    if mode == "asset" and ("canvas" in brief or "node" in brief):
+        raise TakeError("This route records a media asset. Omit canvas and node.")
+    if "node" in brief and "canvas" not in brief:
+        raise TakeError("A destination node requires its canvas.")
+    if provider in HOST_RENDERERS:
+        if "team" in brief:
+            identifier(brief["team"], "team")
+        validate_remote(brief)
+    elif "remote" in brief:
+        raise TakeError("This route uses its dedicated submission tools.")
     text(brief["model"], "model", 160)
     text(brief["prompt"], "the final provider prompt", 16000)
     for name in ("camera", "sound"):
@@ -85,7 +131,7 @@ def validate(brief):
         text(ref["role"], "reference role", 240)
         if ref["kind"] not in ("image", "video", "audio"):
             raise TakeError("Reference kind must be image, video or audio.")
-        if ref["node"] in seen or ref["node"] == brief["node"]:
+        if ref["node"] in seen or ref["node"] == brief.get("node"):
             raise TakeError("Give each reference its own source node.")
         seen.add(ref["node"])
         if "file" in ref:

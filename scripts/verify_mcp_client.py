@@ -21,7 +21,11 @@ async def verify(app):
             assert server.serverInfo.name == "takeferry"
             assert any(tool.name == "takeferry_pippit_bind" for tool in listing.tools)
             assert not result.isError and result.structuredContent == {"selection": None, "takes": []}
-            print(server.protocolVersion, server.serverInfo.name, len(listing.tools), "tools; shot lookup passed")
+            catalog = await client.call_tool("takeferry_canvas_catalog", {"provider": "magnific"})
+            assert not catalog.isError and catalog.structuredContent["routes"][0]["mode"] == "node"
+            board = await client.call_tool("takeferry_storyboard", {"shots": [{"shot": "proof/01", "beat": "The door opens."}]})
+            assert not board.isError and len(board.structuredContent["document"]["nodes"]) == 1
+            print(server.protocolVersion, server.serverInfo.name, len(listing.tools), "tools; shot, catalog and storyboard passed")
 
 
 if __name__ == "__main__":

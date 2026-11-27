@@ -5,6 +5,7 @@ import re
 from numbers import Real
 
 from .brief import TakeError
+from .canvases import HOST_RENDERERS, MODES, RENDERERS, ROUTES
 
 
 def string(description):
@@ -22,25 +23,33 @@ def array(items):
 S = string
 TAKE = S("Stable take ID. Reuse it on retries.")
 ACCOUNT = S("Account ID returned by the provider.")
-TEAM = S("Pippit team ID as a string. Use 0 for personal space.")
+TEAM = S("Selected provider team or workspace ID. Pippit uses 0 for personal space.")
 CANVAS = S("Native platform canvas asset or project ID.")
-NODE = S("Native destination video node ID.")
+NODE = S("Native destination node or saved workflow output node ID.")
 ARGS = {"type": "object", "description": "Arguments matching the installed Canvas command schema."}
 APPROVAL = S("SHA-256 from the exact displayed plan, after the writer approves its cost and contents.")
-REF = obj({"node": S("Native source node ID."), "role": S("What this reference contributes."),
+REMOTE = obj({"server": S("Connector name in the TakeFerry profile."), "tool": S("Exact MCP tool discovered in the connected session."),
+              "arguments": {"type": "object", "description": "Final provider arguments for one approved video."},
+              "snapshot": {"type": "object", "description": "Stable reviewed account, input IDs and relevant graph settings."}},
+             "server", "tool", "arguments", "snapshot")
+BOARD_SHOT = obj({"shot": S("Stable scene and shot ID."), "beat": S("Visible action or screenplay beat."),
+                  "camera": S("Optional camera direction."),
+                  "references": array(obj({"name": S("Writer-facing reference name."), "role": S("Reference duty.")},
+                                          "name", "role"))}, "shot", "beat")
+REF = obj({"node": S("Native source node or upstream reference asset ID."), "role": S("What this reference contributes."),
            "kind": {"type": "string", "enum": ["image", "video", "audio"]},
            "file": S("Relative file under TAKEFERRY_MEDIA_DIR. Required for Pippit.")}, "node", "role", "kind")
 CUE = obj({"at": {"type": "number", "description": "Seconds from the start."}, "action": S("What happens.")}, "at", "action")
 BRIEF = obj({
-    "shot": S("Stable scene and shot ID shared across platforms."), "provider": {"type": "string", "enum": ["libtv", "pippit"]},
+    "shot": S("Stable scene and shot ID shared across platforms."), "provider": {"type": "string", "enum": list(RENDERERS)},
     "account": ACCOUNT, "team": TEAM, "canvas": CANVAS, "node": NODE, "model": S("Exact model returned by provider discovery."),
     "prompt": S("Final provider prompt, including the direction and reference roles."),
     "duration": {"type": "integer", "description": "Full shot length in seconds."},
     "ratio": S("Requested aspect ratio, for example 9:16."), "resolution": S("Optional provider resolution."),
     "camera": S("Camera direction."), "sound": S("Audio direction."), "references": array(REF), "cues": array(CUE),
     "parent": S("Completed parent take from the same shot."), "differences": array(S("A change the writer should see.")),
-    "quote": S("Provider's price with units, or say unknown.")},
-    "shot", "provider", "account", "canvas", "node", "model", "prompt", "duration", "ratio", "camera", "sound", "references", "cues")
+    "remote": REMOTE, "quote": S("Provider's price with units, or say unknown.")},
+    "shot", "provider", "account", "model", "prompt", "duration", "ratio", "camera", "sound", "references", "cues")
 
 
 def definitions():
@@ -48,13 +57,26 @@ def definitions():
     def add(name, method, description, schema, read=False, external=False):
         tools["takeferry_" + name] = (method, {"name": "takeferry_" + name, "description": description,
             "inputSchema": schema, "annotations": {"readOnlyHint": read, "openWorldHint": external}})
+    add("canvas_catalog", "canvas_catalog", "Find a route by provider or evidence. The list describes documented capabilities, not an authenticated tool list.",
+        obj({"provider": {"type": "string", "enum": list(ROUTES)}, "mode": {"type": "string", "enum": list(MODES)}}), True)
+    add("storyboard", "storyboard", "Build local shot cards, a FigJam Mermaid diagram or an editable JSON Canvas. Includes recorded takes and revisions without uploading media.",
+        obj({"shots": array(BOARD_SHOT), "format": {"type": "string", "enum": ["canvas", "mermaid", "cards"]}}, "shots"), True)
+    remote_provider = {"type": "string", "enum": list(HOST_RENDERERS)}
+    add("remote_claim", "remote_claim", "After consent, reserve one remote MCP generation against its freshly checked plan. Call the returned remote tool only when dispatch is true.",
+        obj({"take": TAKE, "provider": remote_provider, "approval": APPROVAL, "current": REMOTE},
+            "take", "provider", "approval", "current"))
+    add("remote_finish", "remote_finish", "Record the upstream readback for the original task at the evidence level of this provider.",
+        obj({"take": TAKE, "provider": remote_provider, "account": ACCOUNT, "team": TEAM, "task_id": S("Original job ID."),
+             "asset": S("Stable output asset identity reported by the job."), "canvas": CANVAS, "node": NODE,
+             "file": S("Optional verified original in the private state media directory.")},
+            "take", "provider", "account", "task_id", "asset"))
     add("prepare", "prepare", "Freeze one take for review. Reuse the take ID on retry. Show the complete brief, quote and one-generation limit.",
         obj({"take": TAKE, "brief": BRIEF}, "take", "brief"), external=True)
     add("take", "ledger.get", "Read a take, its approved target, original receipt and latest checkpoint.", obj({"take": TAKE}, "take"), True)
     add("compare", "ledger.list", "List takes for one shot, their parent versions and the current selection.", obj({"shot": S("Shot ID.")}, "shot"), True)
     add("libtv_claim", "libtv_claim", "Reserve one approved LibTV submission. Only dispatch to official LibTV MCP if dispatch is true.",
         obj({"take": TAKE, "approval": APPROVAL}, "take", "approval"))
-    add("receipt", "receipt", "Record an existing native task receipt. For LibTV supply task_id. For Pippit recovery supply thread_id and run_id.",
+    add("receipt", "receipt", "Record an existing native task receipt. Supply task_id for a hosted MCP run, or thread_id and run_id for Pippit.",
         obj({"take": TAKE, "receipt": {"type": "object", "properties": {k: S("Original provider ID.") for k in ("task_id", "thread_id", "run_id")}, "additionalProperties": False}}, "take", "receipt"))
     add("libtv_finish", "libtv_finish", "Record the asset after the official MCP reports task success and readback on the planned canvas and node.",
         obj({"take": TAKE, "task_id": S("Original task ID."), "canvas": CANVAS, "node": NODE,

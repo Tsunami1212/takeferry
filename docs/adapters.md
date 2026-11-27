@@ -16,9 +16,15 @@ A plan is one video submission. Repeated calls with the same ID and contents ret
 | `collected` | Pippit returned a matching successful run and a local original. | Bind the file to its native video node. |
 | `uploading` / `uploaded` | Canvas upload started or its stable asset ID is known. | Recover an existing upload, or query the known asset until its video identity is available. |
 | `binding` | The intended node edit may already have succeeded. | Read back the native asset IDs. Explicitly retry the same edit only after inspecting an unconfirmed write. |
-| `ready` | The returned media was associated with the intended node. | Compare, select, branch or export the take. |
+| `ready` | The take has the evidence its route supports, such as media on a node or a completed job asset. | Compare, select, branch or export the take. |
 
 The LibTV path uses its official remote MCP in the Hermes session. On success, the caller records observed native readback against the reserved take. The Pippit bridge performs the query, upload, native binding and readback itself. [LibTV directions](../skills/takeferry/references/libtv.md) · [Pippit directions](../skills/takeferry/references/pippit.md)
+
+## Direct calls from Hermes to another provider
+
+The provider catalog describes the type of result each route can prove. For a hosted or local external connector, a reviewed brief includes `remote.server`, `remote.tool`, `remote.arguments` and `remote.snapshot`. Bind the displayed plan and freshly observed inputs with `takeferry_remote_claim`, then call the official MCP through Hermes once. The returned upstream job becomes `task_id` in `takeferry_receipt`.
+
+`takeferry_remote_finish` checks the account, optional team, task and reviewed destination. It records evidence reported by Hermes. Node and workflow routes require a canvas and node in advance. Canvas-delivery routes can record a provider-assigned canvas at completion, or constrain the run to a known canvas in advance. Asset routes omit canvas and node. Each route can later attach a verified local original for export. Auth sessions, secrets and raw input media belong outside the ledger. [Remote shooting guide](../skills/takeferry/references/remote-shoots.md)
 
 ## Contributing another provider
 

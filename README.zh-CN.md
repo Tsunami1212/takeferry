@@ -12,10 +12,14 @@
 python3 -m takeferry demo --output rainy-door-demo
 ```
 
-也可以从[发行页](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.1)下载 `takeferry.pyz`，运行 `python3 takeferry.pyz demo --output rainy-door-demo`。
+也可以从[发行页](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.2)下载 `takeferry.pyz`，运行 `python3 takeferry.pyz demo --output rainy-door-demo`。
 
 打开输出目录里的 `rain-at-the-door.zip`。原片有五秒，剪辑单上记着编剧选中的一段，从第 1 秒到第 4.5 秒。同一目录里，`canvases.json` 可以查看参考图连到了哪个节点，`takes.json` 记录了四条试拍各自从哪一版改来，`branch-camera-movement/SKILL.md` 是这次拍法生成的 Hermes 私有技能草稿。
 
+## 试用其他画布
+
+运行 `python3 -m takeferry catalog` 可以查看支持的平台和它们能交回的结果。运行 `python3 -m takeferry demo --canvas-tour --output canvas-tour` 可以离线走完十条视频接入路径。用 Obsidian 打开输出的 `rain-at-the-door.canvas`，就能查看分镜、参考用途、候选之间的关系和入出点。[平台清单与配置](docs/canvases.md) · [随包技能及来源](skills/takeferry/references/skill-library.md)
+
 ## 使用自己的平台账号
 
-把一场戏贴进自己的 Hermes，确认分镜后挑一镜，再指定先去哪家。Agent 通过 MCP 在对应平台的原画布上建节点、接参考图、写提示词和选模型。真实生成需要你批准，使用所选平台账号的积分。首个公开版本的双平台付费实拍和私有技能在真实 Hermes 中的保存仍待验证。[接入步骤](docs/setup.md) · [验证记录](docs/verification.md)
+把一场戏贴进自己的 Hermes，确认分镜后挑一镜，再指定先去哪家。Agent 通过 MCP 在对应平台的原画布上建节点、接参考图、写提示词和选模型。真实生成需要你批准，使用所选平台账号的积分。当前版本的付费实拍、账号内远程画布写入和私有技能在真实 Hermes 中的保存仍待验证。[接入步骤](docs/setup.md) · [验证记录](docs/verification.md)

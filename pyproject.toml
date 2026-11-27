@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "takeferry"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "A Hermes agent for directing shots on native AI video canvases"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -24,8 +24,13 @@ Issues = "https://github.com/Tsunami1212/takeferry/issues"
 [project.scripts]
 takeferry = "takeferry.__main__:main"
 
-[tool.setuptools.packages.find]
-include = ["takeferry*"]
+[tool.setuptools]
+packages = ["takeferry", "takeferry._skill"]
+
+[tool.setuptools.package-dir]
+"takeferry._skill" = "skills/takeferry"
 
 [tool.setuptools.package-data]
-takeferry = ["data/rainy-door/*.png", "data/rainy-door/*.mp4"]
+takeferry = ["data/rainy-door/*.png", "data/rainy-door/*.mp4", "data/rainy-door/*.json"]
+"takeferry._skill" = ["SKILL.md", "LICENSE", "references/*.md", "references/upstream/*.json",
+  "references/upstream/*/LICENSE", "references/upstream/*/*/*.md", "references/upstream/*/*/references/*.md"]

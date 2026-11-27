@@ -1,18 +1,22 @@
 # TakeFerry
 
-TakeFerry is an open-source agent for screenwriters who want to try the same shot on different AI video platforms. Paste a scene into your own Hermes and choose a shot from the breakdown. TakeFerry uses MCP to build that shot on a native video canvas, run a saved workflow, or send a storyboard to your team's board.
+TakeFerry is an open-source directing skill and MCP toolkit for screenwriters using Hermes Agent. Paste a scene into Hermes, choose a shot from its breakdown, and tell it where to shoot first. On a platform such as LibTV, Hermes builds the workflow on your own canvas. Ask for the same shot on a second platform when you want to compare takes.
 
-> Use image A for her face and image B just for the light. Five seconds, vertical. Have her turn at two seconds when the key clicks. Keep the sound of the rain. Start with a locked shot on LibTV.
+[Set up TakeFerry in Hermes](docs/setup.md) · [Try the offline scene](#try-the-rainy-door-scene) · [中文说明](README.zh-CN.md)
 
-On LibTV, TakeFerry picks a model that accepts both images, writes the prompt, and connects A and B to a video node. You can open the canvas and edit what it built. You see the account, model, final prompt and quoted cost before you approve one take with your LibTV credits. If LibTV hasn't quoted a price, TakeFerry says so.
+## Direct a shot
 
-After watching it, you can say, “Try the same locked shot on Pippit.” TakeFerry rebuilds the shot on your Pippit canvas with the references you approve. It explains any differences and asks before using your Pippit credits. Or stay on LibTV and say, “Keep this one. Try a slow push-in.” The new take gets its own node.
+> Use image A for her face and B just for the light. Five seconds, vertical. She turns when the key clicks at two seconds. Keep the sound of the rain. Give me a locked shot on LibTV first.
 
-Tell Hermes when a method is worth keeping. “Next time I change the camera move, reuse the face and lighting references I approved.” TakeFerry drafts the steps for your own Hermes to save as a private skill. [Directing skill](skills/takeferry/SKILL.md)
+On LibTV, Hermes chooses a model that accepts both images, writes the prompt, and connects the references to a video node you can open and edit. Before a paid take, Hermes shows you the account, model, final prompt, and quoted cost. If the platform hasn't supplied a price, Hermes marks it as unknown. Each take you approve uses that platform's credits.
+
+"Try the same shot on Pippit" keeps the framing and timing. You choose which references to share and review any differences before approving a take on your Pippit account. Or pick a take you like and say, "Keep this one. Try a slower push-in." Hermes gives the revision its own node and keeps both takes on the storyboard.
+
+If you want to reuse that way of working, ask Hermes to draft a private skill for your profile. For example, next time you change only the camera move, have it reuse the face and lighting references you already approved. [Read the directing skill](skills/takeferry/SKILL.md)
 
 ## Try the rainy-door scene
 
-Try the scene offline on two simulated canvases. The rehearsal uses bundled storyboards and costs zero credits. With Python 3.9 or later, download `takeferry.pyz` from the [release](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.2) and run it.
+You can try the scene with Python 3.9 or later, before setting up Hermes or opening a platform account. The rehearsal uses bundled storyboard clips on two simulated canvases and spends zero credits. Download `takeferry.pyz` and run the command below. [Release downloads](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.2)
 
 ```sh
 python3 takeferry.pyz demo --output rainy-door-demo
@@ -28,11 +32,23 @@ python3 -m takeferry demo --output rainy-door-demo
 
 ![Two storyboard takes of An at the door, with a locked camera on the left and a push-in on the right](examples/rainy-door/preview.gif)
 
-Open `rainy-door-demo/rain-at-the-door.zip` for the five-second original. In `cut-list.csv`, the writer kept seconds 1.0 to 4.5 of the slower push-in. Open `rain-at-the-door.canvas` in Obsidian to see what the writer changed between takes. Beside the ZIP are both simulated canvas layouts (`canvases.json`), four take records (`takes.json`), and the skill draft (`branch-camera-movement/SKILL.md`).
+Open `rainy-door-demo/rain-at-the-door.canvas` in Obsidian to see how the four takes relate. The writer chose the slower push-in and kept seconds 1.0 to 4.5. Open `rain-at-the-door.zip` for the full five-second original and `cut-list.csv`. Beside it, `canvases.json` shows where the references connect, `takes.json` records each take, and `branch-camera-movement/SKILL.md` holds the private skill draft.
+
+## Connect your own canvas
+
+For a live shoot, you need a working Hermes Agent with a language model configured. Install the directing skill in your Hermes profile. Run `python3 -m takeferry config` from the checkout or `python3 takeferry.pyz config` with the download. Copy the printed Model Context Protocol (MCP) settings into Hermes and authorize the platform you want to use. Your model provider handles any charges for the Hermes conversation. [Setup and credentials](docs/setup.md)
+
+TakeFerry runs a local MCP server to keep your take history and selections. For LibTV, Hermes also connects to LibTV's official MCP server. For Pippit (小云雀), the local server uses Pippit's official media CLI and Canvas SDK to attach the video to the chosen node and check it there.
 
 ## Choose another canvas
 
-For an editable video graph, try Magnific Spaces, Comfy Cloud or a local ComfyUI workflow. TapNow and RunningHub rhTV return results to their own canvases. Use Runway, Krea or Figma Weave when the media asset is the part you want to compare. Shot lists can go to FigJam, Miro, Canva, Excalidraw or a local JSON Canvas file. [Canvas capabilities and setup](docs/canvases.md)
+| What you want to work with | Where |
+| --- | --- |
+| An editable video node with connected references | LibTV, Pippit, Magnific Spaces |
+| A saved workflow and its job output | Comfy Cloud, local ComfyUI |
+| A video on the platform's canvas | TapNow, RunningHub rhTV |
+| A generated media asset | Runway, Krea, Figma Weave |
+| An editable storyboard or shot list | FigJam, Miro, Canva, Excalidraw, or a local JSON Canvas file in Obsidian |
 
 ```sh
 python3 takeferry.pyz catalog
@@ -40,15 +56,8 @@ python3 takeferry.pyz config --provider magnific comfy miro
 python3 takeferry.pyz demo --canvas-tour --output canvas-tour
 ```
 
-The tour adds eight simulated provider runs to the four original takes. It reuses one storyboard clip so you can inspect how a saved workflow, a canvas asset and a plain video receipt differ. The portable app also contains eight upstream guides covering ComfyUI nodes, video generation, storyboarding, camera movement, character continuity and the JSON Canvas format. [Skill library and licenses](skills/takeferry/references/skill-library.md)
+The offline tour adds eight simulated runs to the four above. It reuses one clip so you can inspect what each platform would return. The skill includes eight published guides on ComfyUI, shot design, continuity, and JSON Canvas. [Canvas capabilities](docs/canvases.md) · [Skill sources and licenses](skills/takeferry/references/skill-library.md)
 
-## Connect your own canvas
+We've tested the offline workflow, checked where hosted connectors start login, and read Excalidraw's public tool reference over MCP. Paid renders, edits to signed-in boards, and saving a private skill in a live Hermes profile still need verification. [Test results](docs/verification.md)
 
-Install the directing skill in your Hermes profile. Run `python3 -m takeferry config` or `python3 takeferry.pyz config` to print the Model Context Protocol (MCP) settings, then authorize the platform you want to use. Your Hermes language model has its own billing. [Setup and credentials](docs/setup.md)
-
-- **LibTV** provides the official remote MCP server. Hermes builds and runs the shot there, then reads the result back from its canvas node.
-- **Pippit (小云雀)** uses TakeFerry's MCP bridge to its official media CLI and Canvas SDK. The bridge attaches the returned video to the intended node and checks its media IDs on Pippit.
-
-The offline tour exercises all ten video routes. We also checked hosted authorization endpoints and used the public Excalidraw MCP to read its tool reference. Paid renders, account-specific board writes and saving the skill in a real Hermes profile still need testing. [Verification details](docs/verification.md)
-
-The core, MCP server and example use the Python standard library. Run the tests with `python3 -m unittest discover -s tests -v`. [Contributor guide](CONTRIBUTING.md) · [Adapter notes](docs/adapters.md) · [Apache-2.0 license](LICENSE) · [中文使用指南](README.zh-CN.md)
+The core, MCP server, and example use the Python standard library. Run the tests with `python3 -m unittest discover -s tests -v`. [Contributor guide](CONTRIBUTING.md) · [Adapter notes](docs/adapters.md) · [Apache-2.0 license](LICENSE)

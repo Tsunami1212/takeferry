@@ -1,26 +1,24 @@
 # TakeFerry
 
-TakeFerry lets a screenwriter direct a shot in Hermes and open the resulting workflow on the video platform's own canvas. It connects to LibTV's official MCP server and provides an MCP bridge for Pippit's native canvas tools.
+TakeFerry is an open-source agent for screenwriters who want to try the same shot on different AI video platforms. Paste a scene into your own Hermes and choose a shot from the breakdown. TakeFerry uses MCP to build the workflow for that shot on your LibTV or Pippit canvas.
 
-> Use A for An's face and B for the light. Five seconds, vertical. A key turns behind her at two seconds. Keep the rain. Give me one locked shot first.
+> Use image A for her face and image B just for the light. Five seconds, vertical. Have her turn at two seconds when the key clicks. Keep the sound of the rain. Start with a locked shot on LibTV.
 
-Hermes helps choose a model, writes the prompt and connects the references. You see the account, creative changes and cost before you approve a generation. You can then try the same shot on another platform or change one camera move. Each take keeps its parent and its original canvas node.
+On LibTV, TakeFerry picks a model that accepts both images, writes the prompt, and connects A and B to a video node. You can open the canvas and edit what it built. You see the account, model, final prompt and quoted cost before you approve one take with your LibTV credits. If LibTV hasn't quoted a price, TakeFerry says so.
 
-[简体中文](README.zh-CN.md) · [Connect Hermes](docs/setup.md) · [What has been tested](docs/verification.md)
+After watching it, you can say, “Try the same locked shot on Pippit.” TakeFerry rebuilds the shot on your Pippit canvas with the references you approve. It explains any differences and asks before using your Pippit credits. Or stay on LibTV and say, “Keep this one. Try a slow push-in.” The new take gets its own node.
 
-![Two illustrated takes of An at a doorway, one locked and one pushing in](examples/rainy-door/preview.gif)
-
-*These five-second storyboards come with the offline example. The two columns show the camera choices.*
+Tell Hermes when a method is worth keeping. “Next time I change the camera move, reuse the face and lighting references I approved.” TakeFerry drafts the steps for your own Hermes to save as a private skill. [Directing skill](skills/takeferry/SKILL.md)
 
 ## Try the rainy-door scene
 
-With Python 3.9 or later, download `takeferry.pyz` from the [release](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.1) and run it.
+Try the scene offline on two simulated canvases. The rehearsal uses bundled storyboards and costs zero credits. With Python 3.9 or later, download `takeferry.pyz` from the [release](https://github.com/Tsunami1212/takeferry/releases/tag/v0.1.0-alpha.1) and run it.
 
 ```sh
 python3 takeferry.pyz demo --output rainy-door-demo
 ```
 
-Or run the same example from source.
+Or run it from source.
 
 ```sh
 git clone https://github.com/Tsunami1212/takeferry.git
@@ -28,27 +26,17 @@ cd takeferry
 python3 -m takeferry demo --output rainy-door-demo
 ```
 
-Open `rainy-door-demo/rain-at-the-door.zip`. The original is five seconds long. In `cut-list.csv`, the writer chose seconds 1.0 to 4.5 of the slower push. Next to the ZIP, `canvases.json` shows the reference links and resulting media nodes on two simulated canvases. `takes.json` records the four takes. `branch-camera-movement/SKILL.md` is a draft of the method the writer wanted to keep.
+![Two storyboard takes of An at the door, with a locked camera on the left and a push-in on the right](examples/rainy-door/preview.gif)
 
-The rehearsal runs offline with bundled media and costs zero credits. It needs neither Hermes nor a platform login.
+Open `rainy-door-demo/rain-at-the-door.zip` for the five-second original. In `cut-list.csv`, the writer kept seconds 1.0 to 4.5 of the slower push-in. Beside the ZIP are both simulated canvas layouts (`canvases.json`), four take records (`takes.json`), and the skill draft (`branch-camera-movement/SKILL.md`).
 
-## Use your own canvas
+## Connect your own canvas
 
-Install the directing skill in your Hermes profile. Run `python3 -m takeferry config` (or `python3 takeferry.pyz config`) to print the MCP entries for the local tool and LibTV. Then authorize the platform you want to use. Pippit also needs its official CLI and Canvas SDK entry on the host running the bridge. [Setup and credentials](docs/setup.md)
+Install the directing skill in your Hermes profile. Run `python3 -m takeferry config` or `python3 takeferry.pyz config` to print the Model Context Protocol (MCP) settings, then authorize the platform you want to use. Your Hermes language model has its own billing. [Setup and credentials](docs/setup.md)
 
-Start by pasting a scene into Hermes. Pick a shot from the proposed breakdown. The first run is one take on one platform. For a comparison, say “try that same shot on the other platform.” For a revision, say “keep her face and the light, but slow the push on the take I chose.”
+- **LibTV** provides the official remote MCP server. Hermes builds and runs the shot there, then reads the result back from its canvas node.
+- **Pippit (小云雀)** uses TakeFerry's MCP bridge to its official media CLI and Canvas SDK. The bridge attaches the returned video to the intended node and checks its media IDs on Pippit.
 
-| Provider | Where the work happens | How the result is checked |
-| --- | --- | --- |
-| LibTV | Hermes uses the official remote MCP to prepare and run a native canvas node. | Hermes reads the task and node on LibTV, then records their IDs and the observed media asset in TakeFerry. |
-| Pippit / 小云雀 | TakeFerry's local MCP calls Pippit's official media CLI and Canvas SDK in the selected account and team space. | The bridge collects the original run, attaches its media to the intended node, and reads both media IDs back from Pippit. |
+This alpha has been tested with the offline rehearsal and the official Python MCP client. Paid renders on both platforms and saving a skill in a real Hermes profile still need testing. [Verification details](docs/verification.md)
 
-Live generation uses credits on the selected platform. When a platform doesn't quote a price, the skill asks you to approve a stated number of generations at an unknown price. The language model you configure in Hermes has its own billing.
-
-When you want to keep a method, ask Hermes to save it as a private skill. For example, it can remember to reuse the approved face and light references before branching a camera move. Your next project can use that method with its own cast and material. [Directing skill](skills/takeferry/SKILL.md)
-
-## Release status
-
-This is a source preview. The offline rehearsal covers both provider paths, and the local MCP server has been exercised with the official Python MCP client. The public checkout has not been used for a paid generation on either platform. [Verification details](docs/verification.md)
-
-Run the tests with `python3 -m unittest discover -s tests -v`. The core, the MCP server and the example use the Python standard library. [Contributor guide](CONTRIBUTING.md) · [Adapter notes](docs/adapters.md) · [Apache-2.0 license](LICENSE)
+The core, MCP server and example use the Python standard library. Run the tests with `python3 -m unittest discover -s tests -v`. [Contributor guide](CONTRIBUTING.md) · [Adapter notes](docs/adapters.md) · [Apache-2.0 license](LICENSE) · [中文使用指南](README.zh-CN.md)

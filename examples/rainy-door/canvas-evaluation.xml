@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation>
+  <qa_pair>
+    <question>In the expanded rain-at-the-door/02 tour, which native Space route reports the media on its reviewed video node? Give its take ID.</question>
+    <answer>magnific-fixture</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many ready takes in the rain-at-the-door/02 tour have reported workflow-output evidence?</question>
+    <answer>2</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which destination canvas was assigned to the TapNow take after it was approved without a named destination?</question>
+    <answer>fixture-tapnow-board</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the shared parent of the eight added provider takes?</question>
+    <answer>pippit-slow-push</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which provider asset identifies the completed Krea job in this tour?</question>
+    <answer>fixture-krea-asset</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which assigned-canvas route in the tour uses a separate Chinese-site MCP endpoint alongside its international endpoint? Give its take ID.</question>
+    <answer>rhtv-fixture</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Among the media-only tour takes, which one shares its configured connector with a planning-board route? Give its take ID.</question>
+    <answer>weave-fixture</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many seconds from the selected take would the editor use after all twelve takes have been recorded?</question>
+    <answer>3.5</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>For the expanded scene, how many revision edges connect take cards on a board built from the supplied shot list?</question>
+    <answer>11</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which original job ID supplied the tour's saved-workflow output from the ComfyUI instance running on the writer's machine?</question>
+    <answer>fixture-comfy-local-job</answer>
+  </qa_pair>
+</evaluation>

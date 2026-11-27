@@ -8,8 +8,10 @@ import tempfile
 from pathlib import Path
 
 from .brief import TakeError, digest, identifier, keys, note_path, text, validate
+from .canvases import HOST_RENDERERS, ROUTES, catalog
 from .ledger import Ledger, fingerprint, inside
 from .pippit import EDIT, MEDIA, READ, Pippit
+from .storyboard import storyboard
 
 
 class Studio:
@@ -34,6 +36,43 @@ class Studio:
                       "native_sources": self.pippit.reference_bindings(brief)}
         return self.ledger.prepare(take, brief, inputs)
 
+    canvas_catalog = staticmethod(catalog)
+
+    def storyboard(self, shots, format="canvas"):
+        return storyboard(self.ledger, shots, format)
+
+    def remote_claim(self, take, provider, approval, current):
+        if provider not in HOST_RENDERERS:
+            raise TakeError("Use the dedicated tools for this provider.")
+        row = self.ledger.get(take)
+        if row["brief"]["provider"] != provider or digest(row["brief"].get("remote")) != digest(current):
+            raise TakeError("The remote tool, arguments or current snapshot differ from the reviewed plan.")
+        acquired, row = self.ledger.claim(take, approval, provider)
+        return {"dispatch": acquired, "remote": row["brief"]["remote"] if acquired else None, "take": row}
+
+    def remote_finish(self, take, provider, account, task_id, asset, team=None, canvas=None, node=None, file=None):
+        if provider not in HOST_RENDERERS:
+            raise TakeError("Use the dedicated result tools for this provider.")
+        row = self.ledger.get(take)
+        brief = row["brief"]
+        if (brief["provider"], brief["account"], brief.get("team"), row["receipt"]) != (
+                provider, account, team, {"task_id": task_id}):
+            raise TakeError("The readback must match the reviewed provider, account, team and original task.")
+        mode = ROUTES[provider].mode
+        evidence = {"node": "reported_native_readback", "workflow": "reported_workflow_output",
+                    "canvas": "reported_canvas_asset", "asset": "reported_job_asset"}
+        result = {"asset": identifier(asset, "asset"), "evidence": evidence[mode]}
+        for field, observed in (("canvas", canvas), ("node", node)):
+            if field in brief and brief[field] != observed:
+                raise TakeError(f"The reported {field} differs from the approved target.")
+            if observed is not None:
+                if mode == "asset":
+                    raise TakeError("Use the media asset receipt for this route.")
+                result[field] = identifier(observed, field)
+        if mode == "canvas" and canvas is None:
+            raise TakeError("Read the media from the provider canvas before marking the take ready.")
+        return self._finish_original(take, result, file)
+
     def libtv_claim(self, take, approval):
         dispatch, row = self.ledger.claim(take, approval, "libtv")
         return {"dispatch": dispatch, "take": row}
@@ -52,6 +91,9 @@ class Studio:
         if (b["provider"], b["canvas"], b["node"], row["receipt"]) != ("libtv", canvas, node, {"task_id": task_id}):
             raise TakeError("Native readback must match the original provider, task, canvas and node.")
         result = {"asset": identifier(asset, "asset"), "evidence": "reported_native_readback"}
+        return self._finish_original(take, result, file)
+
+    def _finish_original(self, take, result, file):
         if file is not None:
             relative = note_path(file)
             src = inside(self.ledger.media, relative)

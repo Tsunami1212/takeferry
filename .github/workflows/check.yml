@@ -23,3 +23,6 @@ jobs:
           python3 scripts/build_release.py "$RUNNER_TEMP/takeferry.pyz"
           python3 "$RUNNER_TEMP/takeferry.pyz" demo --output "$RUNNER_TEMP/door-rehearsal"
           python3 -m zipfile -t "$RUNNER_TEMP/door-rehearsal/rain-at-the-door.zip"
+          python3 "$RUNNER_TEMP/takeferry.pyz" demo --canvas-tour --output "$RUNNER_TEMP/canvas-tour"
+          python3 "$RUNNER_TEMP/takeferry.pyz" skill --output "$RUNNER_TEMP/takeferry-skill.zip"
+          python3 -m zipfile -t "$RUNNER_TEMP/takeferry-skill.zip"

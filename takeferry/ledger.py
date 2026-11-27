@@ -47,6 +47,14 @@ class Ledger:
                 json_extract(brief, '$.account'), json_extract(brief, '$.team'),
                 json_extract(brief, '$.canvas'), json_extract(brief, '$.node')
             ) WHERE json_extract(brief, '$.provider') = 'pippit'""")
+            db.execute("""CREATE UNIQUE INDEX IF NOT EXISTS magnific_destination ON takes (
+                json_extract(brief, '$.account'), coalesce(json_extract(brief, '$.team'), ''),
+                json_extract(brief, '$.canvas'), json_extract(brief, '$.node')
+            ) WHERE json_extract(brief, '$.provider') = 'magnific'""")
+            db.execute("""CREATE UNIQUE INDEX IF NOT EXISTS external_task ON takes (
+                json_extract(brief, '$.provider'), json_extract(brief, '$.account'),
+                coalesce(json_extract(brief, '$.team'), ''), json_extract(receipt, '$.task_id')
+            ) WHERE receipt IS NOT NULL AND json_extract(brief, '$.provider') NOT IN ('libtv', 'pippit')""")
             db.execute("""CREATE TABLE IF NOT EXISTS selections (
                 shot TEXT PRIMARY KEY, take_id TEXT NOT NULL REFERENCES takes(id),
                 start REAL NOT NULL, stop REAL NOT NULL)""")
@@ -113,7 +121,7 @@ class Ledger:
                             VALUES (?,?,?,?,?,'planned') ON CONFLICT(id) DO NOTHING""",
                            (take, brief["shot"], approval, json.dumps(brief), json.dumps(inputs)))
             except sqlite3.IntegrityError as exc:
-                raise TakeError("Another take already uses this Pippit video node. Create a fresh video node for the revision.") from exc
+                raise TakeError("Another take already uses this video node. Create a fresh video node for the revision.") from exc
             row = self._row(db, take)
             if row["approval"] != approval:
                 raise TakeError("This take ID already has a different brief. Give the revision a new ID.")
@@ -146,7 +154,10 @@ class Ledger:
             if row["receipt"] != receipt:
                 raise TakeError("This take is already bound to another receipt.")
             return row
-        changed, row = self.step(take, "submitting", "submitted", receipt=receipt)
+        try:
+            changed, row = self.step(take, "submitting", "submitted", receipt=receipt)
+        except sqlite3.IntegrityError as exc:
+            raise TakeError("That provider task is already bound to another take in this account.") from exc
         if not changed and row["receipt"] != receipt:
             raise TakeError("Record a receipt only after claiming its reviewed take.")
         return row
@@ -156,8 +167,10 @@ class Ledger:
             row = self._row(db, take)
             existing = row["result"]
             if row["state"] == "ready":
-                if existing["asset"] != result["asset"]:
-                    raise TakeError("A different asset is already attached to this take.")
+                existing_binding = {k: v for k, v in existing.items() if k not in ("file", "sha256")}
+                new_binding = {k: v for k, v in result.items() if k not in ("file", "sha256")}
+                if existing_binding != new_binding:
+                    raise TakeError("A different asset or destination is already attached to this take.")
                 if "file" not in result or existing == result:
                     return row
                 if existing.get("file"):
@@ -212,7 +225,8 @@ class Ledger:
                             raise TakeError(f"The original for {row['id']} changed after collection.")
                         clip = f"shot-{index:03d}{src.suffix.lower()}"
                         archive.write(src, clip)
-                    cells = [row["shot"], row["id"], b["provider"], b["canvas"], b["node"],
+                    cells = [row["shot"], row["id"], b["provider"], result.get("canvas", b.get("canvas", "")),
+                             result.get("node", b.get("node", "")),
                              result["asset"], start, stop, clip]
                     writer.writerow(["'" + c if isinstance(c, str) and c.lstrip().startswith(("=", "+", "-", "@")) else c for c in cells])
                 archive.writestr("cut-list.csv", sheet.getvalue().encode("utf-8-sig"))

@@ -103,7 +103,37 @@ def write_json(path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def rehearse(output):
+def rehearse_remote_canvases(studio, assets):
+    """Exercise the host handoff with synthetic receipts and one shared storyboard."""
+    from .canvases import HOST_RENDERERS, ROUTES, SUBMIT_TOOLS
+    shutil.copyfile(assets / "slow-push.mp4", studio.ledger.media / "remote-fixture.mp4")
+    baseline = studio.ledger.get("pippit-slow-push")["brief"]
+    for provider in HOST_RENDERERS:
+        mode = ROUTES[provider].mode
+        canvas, node = "fixture-" + provider + "-board", "fixture-output"
+        take = provider + "-fixture"
+        brief = {key: baseline[key] for key in ("shot", "duration", "ratio", "camera", "sound", "cues", "prompt")}
+        brief.update(provider=provider, account="fixture-writer", model="fixture-video", parent="pippit-slow-push",
+                     references=[{"node": "fixture-face", "kind": "image", "role": "identity"},
+                                 {"node": "fixture-light", "kind": "image", "role": "lighting only"}],
+                     differences=["Synthetic contract rehearsal using the same bundled storyboard."],
+                     quote="Offline fixture, zero platform credits.",
+                     remote={"server": ROUTES[provider].connector, "tool": SUBMIT_TOOLS.get(provider, ("fixture_video",))[0],
+                             "arguments": {"shot": SHOT, "count": 1}, "snapshot": {"account": "fixture-writer",
+                             "video_outputs": 1, "model": "fixture-video", "references": ["fixture-face", "fixture-light"]}})
+        if mode in ("node", "workflow"):
+            brief.update(canvas=canvas, node=node)
+        row = studio.prepare(take, brief)
+        if not studio.remote_claim(take, provider, row["approval"], brief["remote"])["dispatch"]:
+            raise TakeError("Expected an unused fixture take.")
+        job = "fixture-" + provider + "-job"
+        studio.receipt(take, {"task_id": job})
+        studio.remote_finish(take, provider, "fixture-writer", job, "fixture-" + provider + "-asset",
+                             canvas=canvas if mode != "asset" else None,
+                             node=node if mode in ("node", "workflow") else None, file="remote-fixture.mp4")
+
+
+def rehearse(output, canvas_tour=False):
     output = Path(output).resolve()
     if output.exists() and any(output.iterdir()):
         raise TakeError("Choose a new or empty directory for the rehearsal.")
@@ -169,8 +199,13 @@ def rehearse(output):
     lessons.mkdir()
     (lessons / "SKILL.md").write_text(skill["content"], encoding="utf-8")
     result = studio.ledger.export(output / "rain-at-the-door.zip", [SHOT])
+    if canvas_tour:
+        rehearse_remote_canvases(studio, assets)
     comparison = act("compare", shot=SHOT)
     write_json(output / "takes.json", comparison)
+    shot_list = json.loads(bundled.joinpath("shot-list.json").read_text(encoding="utf-8"))
+    write_json(output / "shot-list.json", shot_list)
+    write_json(output / "rain-at-the-door.canvas", studio.storyboard(shot_list)["document"])
     write_json(output / "canvases.json", {"fixture": True, "libtv": lib_graph, "pippit":
                act("pippit_read", account=account, team=team, canvas=canvas, operation="get_snapshot", values={})["data"]["document"]})
     return {"fixture": True, "platform_credits": 0, "takes": [r["id"] for r in comparison["takes"]],

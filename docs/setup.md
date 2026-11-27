@@ -10,9 +10,13 @@ Use a working Hermes Agent installation with a language model configured. Instal
 hermes skills install Tsunami1212/takeferry/skills/takeferry
 ```
 
+To get the complete skill without a Git checkout, download the release's `takeferry-skill.zip`, or run `python3 takeferry.pyz skill --output takeferry-skill.zip`. Unzip its `takeferry/` directory into the active Hermes profile's `skills/` directory. The archive includes the reference guides and their licenses.
+
 Hermes can also load the checked-out `skills/takeferry/` directory from its profile's `skills/` folder. Keep private lessons in separate skills so you can update the public package. [Hermes skill installation](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills)
 
 From the checkout, run `python3 -m takeferry config`. If you downloaded the portable app, run `python3 takeferry.pyz config` instead. Merge the printed entries under `mcp_servers` in the active Hermes profile's `config.yaml`. Keep its other servers in place. The output uses the actual Python and checkout or application path on your machine.
+
+For other platforms, select only the connectors you want, for example `python3 takeferry.pyz config --provider tapnow magnific comfy figjam`. See the [canvas guide](canvases.md) for local ComfyUI, regional endpoints and Canva's OAuth client settings.
 
 Start a new Hermes session or reload its MCP connections. Ask it to list the TakeFerry tools and read an empty shot using `takeferry_compare`. The result should contain an empty `takes` list and a null selection. [Hermes MCP configuration](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp)
 

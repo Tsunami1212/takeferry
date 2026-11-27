@@ -1,0 +1,93 @@
+{
+  "comfy": {
+    "repository": "Comfy-Org/comfy-skills",
+    "commit": "88116d739487ade507ef41e711c4fbd71ed77ac9",
+    "license": "MIT",
+    "files": [
+      {
+        "local": "comfy/LICENSE",
+        "source": "LICENSE",
+        "sha256": "229f88298042ea4f030d33807d901872ca14072559e9720a548d36936bd08625"
+      },
+      {
+        "local": "comfy/generate-video/guide.md",
+        "source": "claude-code/skills/generate-video/SKILL.md",
+        "sha256": "5530850bcb5a8ce181749606943f70f8e6c0846ab4392bad3d59b8d42f0805a3"
+      },
+      {
+        "local": "comfy/search-nodes/guide.md",
+        "source": "claude-code/skills/search-nodes/SKILL.md",
+        "sha256": "25b691297a50016a9bdd0a9523b76e885dc69eba1c3b2a38284b72ca950fe71b"
+      },
+      {
+        "local": "comfy/search-templates/guide.md",
+        "source": "claude-code/skills/search-templates/SKILL.md",
+        "sha256": "023fc9ac12e2f432ab2a565be45e69891864ce0f4a95b9719ab6467f8eb37961"
+      }
+    ]
+  },
+  "magnific": {
+    "repository": "freepik-company/magnific-plugin",
+    "commit": "857f25194f57390941c79bb73c9176a8137d1894",
+    "license": "MIT",
+    "files": [
+      {
+        "local": "magnific/LICENSE",
+        "source": "LICENSE",
+        "sha256": "9209609355832b11210d14f7ce82f562edabf1d63d6e7557046d6eeafb83d33c"
+      },
+      {
+        "local": "magnific/cinematic-shots/guide.md",
+        "source": "skills/cinematic-shots/SKILL.md",
+        "sha256": "b96130730b15397d507f806ba4196a9af94745c126feacbf16003c9e4f9e4d0b"
+      },
+      {
+        "local": "magnific/consistent-characters/guide.md",
+        "source": "skills/consistent-characters/SKILL.md",
+        "sha256": "58d5052f338dfcb3b3ee53de2cd5965ee9f2f742225e65a826d601a596ee2e80"
+      },
+      {
+        "local": "magnific/magnific-essentials/guide.md",
+        "source": "skills/magnific-essentials/SKILL.md",
+        "sha256": "16aad6a98228e4cef41d991ffba539637866bb36718f28a52a8221532e03e40b"
+      },
+      {
+        "local": "magnific/magnific-essentials/references/image-prompt-craft.md",
+        "source": "skills/magnific-essentials/references/image-prompt-craft.md",
+        "sha256": "9e7b720f1232e4023734a3951328976557318529853ecee9a90b9621c19d2bb1"
+      },
+      {
+        "local": "magnific/magnific-essentials/references/video-prompt-craft.md",
+        "source": "skills/magnific-essentials/references/video-prompt-craft.md",
+        "sha256": "ee9922fdba80dadde231e5d381884f46eb50df77009a64180b3d17315b02c2a7"
+      },
+      {
+        "local": "magnific/previs-storyboard/guide.md",
+        "source": "skills/previs-storyboard/SKILL.md",
+        "sha256": "36049a48184af6a143649f2e1eb647a0736a064acce3a58afe7812f198f25836"
+      }
+    ]
+  },
+  "obsidian": {
+    "repository": "obsidianmd/obsidian-skills",
+    "commit": "9c9560a870fd490b0e1a847f2c8401a50e2d931d",
+    "license": "MIT",
+    "files": [
+      {
+        "local": "obsidian/LICENSE",
+        "source": "LICENSE",
+        "sha256": "64c64d48361edfe8610016441bf593256ea9b67f133b00f47c55aa29ee878567"
+      },
+      {
+        "local": "obsidian/json-canvas/guide.md",
+        "source": "plugins/obsidian/skills/json-canvas/SKILL.md",
+        "sha256": "4db4e69eea910b598c249e41bcdda85a70856348adaf11c35371198e258d50a6"
+      },
+      {
+        "local": "obsidian/json-canvas/references/EXAMPLES.md",
+        "source": "plugins/obsidian/skills/json-canvas/references/EXAMPLES.md",
+        "sha256": "f5ce15a4b74643122396265e8c37c828874a4005794de2aee7030662968768eb"
+      }
+    ]
+  }
+}

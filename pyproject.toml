@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "takeferry"
 version = "0.1.0a2"
-description = "A Hermes agent for directing shots on native AI video canvases"
+description = "A directing skill and MCP toolkit for screenwriters using Hermes Agent to try the same shot across AI video platforms"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.9"

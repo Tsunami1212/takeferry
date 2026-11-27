@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation>
+  <qa_pair>
+    <question>For shot rain-at-the-door/02, which take supplied the camera movement for the selected revision?</question>
+    <answer>pippit-push</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Starting from the accepted take on shot rain-at-the-door/02, trace the parents back to the other platform. What was the original take ID?</question>
+    <answer>libtv-locked</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which native Pippit reference node provides lighting for the selected take on shot rain-at-the-door/02?</question>
+    <answer>fixture-node-2</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many seconds of the selected take on shot rain-at-the-door/02 did the writer keep?</question>
+    <answer>3.5</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which native run ID belongs to the first Pippit counterpart of the original locked camera on shot rain-at-the-door/02?</question>
+    <answer>fixture-run-1</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which native video node holds the selected slower revision on shot rain-at-the-door/02?</question>
+    <answer>fixture-node-5</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the original external task ID of the earliest take in the ancestry of the selected Pippit revision on shot rain-at-the-door/02?</question>
+    <answer>fixture-libtv-job</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many finished Pippit takes share shot rain-at-the-door/02 with the first LibTV take?</question>
+    <answer>3</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>How many seconds before the end of the selected shot rain-at-the-door/02 does An turn her head?</question>
+    <answer>3</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Which provider-specific media identity did the bridge read back from the selected native node on shot rain-at-the-door/02? Give the underlying cloud video asset, not the node identity.</question>
+    <answer>cloud-fixture-media-5</answer>
+  </qa_pair>
+</evaluation>

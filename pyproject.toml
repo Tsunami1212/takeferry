@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "takeferry"
+version = "0.1.0a1"
+description = "A Hermes agent for directing shots on native AI video canvases"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+authors = [{name = "TakeFerry contributors"}]
+dependencies = []
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+]
+
+[project.urls]
+Repository = "https://github.com/Tsunami1212/takeferry"
+Issues = "https://github.com/Tsunami1212/takeferry/issues"
+
+[project.scripts]
+takeferry = "takeferry.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["takeferry*"]
+
+[tool.setuptools.package-data]
+takeferry = ["data/rainy-door/*.png", "data/rainy-door/*.mp4"]
